@@ -1,0 +1,7 @@
+{
+  "name": "tablut",
+  "integrations": {
+    "capacitor": {}
+  },
+  "type": "angular"
+}
