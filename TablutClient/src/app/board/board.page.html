@@ -1,0 +1,22 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>Tablut Game</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+  <ion-text>{{this.turn}}</ion-text>
+  <ion-grid *ngIf="showbrd">
+    <ion-row *ngFor="let row of tablutGrid; let r = index;">
+
+      <ion-col class="grid-box"
+        [ngClass]="{'highlight-box': calcHL(r,c), 'goto-box': checkSteps(r,c)} "
+        *ngFor="let col of row; let c = index;">
+        <img src="{{getImageOnIndex(col, r, c)}}"
+          (click)="restrictMoment(col,r,c) ? $event.stopPropagation() : selectPiece(col, r, c)" alt="no-img"
+          (error)="errorHandler($event, r ,c)">
+      </ion-col>
+
+    </ion-row>
+  </ion-grid>
+</ion-content>
