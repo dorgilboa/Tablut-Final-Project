@@ -7,8 +7,8 @@ namespace TablutServer
 {
     internal class BitSet
     {
-        private ulong low;
-        private ulong high;
+        public ulong low { get; set; }
+        public ulong high { get; set; }
 
         public BitSet(ulong low, ulong high)
         {
@@ -22,7 +22,7 @@ namespace TablutServer
         /// </summary>
         /// <param name="bs">The Bitset-type operand.</param>
         /// <param name="count">The amount of shifts that are executed.</param>
-        /// <returns>'And' result on bs1 and bs2.</returns>
+        /// <returns>'Shift left' result on bs1 and bs2.</returns>
         public static BitSet operator <<(BitSet bs, int count)
         {
             BitSet res = new BitSet(bs.low, bs.high);
@@ -37,12 +37,12 @@ namespace TablutServer
         }
 
         /// <summary>
-        /// Bitwise 'shift-left' (<<) implementation on two-part bitset 
+        /// Bitwise 'shift-right' (<<) implementation on two-part bitset 
         /// varriable, works first on the low part then on high.
         /// </summary>
         /// <param name="bs">The Bitset-type operand.</param>
         /// <param name="count">The amount of shifts that are executed.</param>
-        /// <returns>'And' result on bs1 and bs2.</returns>
+        /// <returns>'Shift-right' result on bs1 and bs2.</returns>
         public static BitSet operator >>(BitSet bs, int count)
         {
             BitSet res = new BitSet(bs.low, bs.high);

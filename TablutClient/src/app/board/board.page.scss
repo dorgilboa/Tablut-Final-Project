@@ -4,6 +4,14 @@ ion-col{
   height: 11vw;
 }
 
+ion-row:first-of-type>ion-col:first-of-type,
+ion-row:first-of-type>ion-col:last-of-type,
+ion-row:last-of-type>ion-col:first-of-type,
+ion-row:last-of-type>ion-col:last-of-type,
+ion-row:nth-of-type(5)>ion-col:nth-of-type(5){
+  background-color: rgba(255, 215, 85, 0.7);
+}
+
 .highlight-box{
   background-color: rgba(111, 255, 111, 0.85);
 }
