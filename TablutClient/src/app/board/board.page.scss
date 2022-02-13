@@ -4,18 +4,29 @@ ion-col{
   height: 11vw;
 }
 
+.highlight-box,
+ion-row:first-of-type>ion-col:first-of-type.highlight-box,
+ion-row:first-of-type>ion-col:last-of-type.highlight-box,
+ion-row:last-of-type>ion-col:first-of-type.highlight-box,
+ion-row:last-of-type>ion-col:last-of-type.highlight-box,
+ion-row:nth-of-type(5)>ion-col:nth-of-type(5).highlight-box{
+  background-color: rgba(111, 255, 111, 0.85);
+}
+
+.goto-box,
+ion-row:first-of-type>ion-col:first-of-type.goto-box,
+ion-row:first-of-type>ion-col:last-of-type.goto-box,
+ion-row:last-of-type>ion-col:first-of-type.goto-box,
+ion-row:last-of-type>ion-col:last-of-type.goto-box,
+ion-row:nth-of-type(5)>ion-col:nth-of-type(5).goto-box{
+  background-color: rgba(111, 255, 111, 0.4);
+}
+
+
 ion-row:first-of-type>ion-col:first-of-type,
 ion-row:first-of-type>ion-col:last-of-type,
 ion-row:last-of-type>ion-col:first-of-type,
 ion-row:last-of-type>ion-col:last-of-type,
 ion-row:nth-of-type(5)>ion-col:nth-of-type(5){
   background-color: rgba(255, 215, 85, 0.7);
-}
-
-.highlight-box{
-  background-color: rgba(111, 255, 111, 0.85);
-}
-
-.goto-box{
-  background-color: rgba(111, 255, 111, 0.40);
 }
