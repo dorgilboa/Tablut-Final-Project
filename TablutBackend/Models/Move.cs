@@ -8,14 +8,13 @@ namespace TablutBackend.Models
     {
         public int from { get; set; }
         public int to { get; set; }
-        //public Board w_board { get; set; }
-        //public Board b_board { get; set; }
         public int score { get; set; }
+
+        // wturn => is white turn.
         public bool wturn { get; set; }
 
+        // TT = Transposition Table.
         public TTType type { get; set; }
-
-        //public List<Move> moves { get; set; }
 
         public Move(int from, int to, bool wturn, TTType type = TTType.EXACT)
         {
@@ -23,7 +22,6 @@ namespace TablutBackend.Models
             this.to = to;
             this.wturn = wturn;
             this.type = type;
-            //moves = new List<Move>();
         }
     }
 }

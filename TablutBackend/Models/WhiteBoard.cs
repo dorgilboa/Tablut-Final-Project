@@ -8,6 +8,7 @@ namespace TablutBackend.Models
     public class WhiteBoard : Board
     {
         private readonly string KING_TEMPLATE = "000000000000000000000000000000000000000010000000000000000000000000000000000000000";
+        // Weights for white pieces on board.
         private readonly int[] WHITE_WEIGHTS = { 2,2,2,0,0,0,2,2,2,
                                                   2,1,1,4,0,4,1,1,2,
                                                   2,1,2,2,2,2,2,1,2,
@@ -17,6 +18,7 @@ namespace TablutBackend.Models
                                                   2,1,2,2,2,2,2,1,2,
                                                   2,1,1,4,0,4,1,1,2,
                                                   2,2,2,0,0,0,2,2,2};
+        // Weights for king piece's positions on board.
         private readonly int[] KING_WEIGHTS = { 5,1,3,3,3,3,3,1,5,
                                                   1,1,1,2,0,2,1,1,1,
                                                   3,1,2,1,1,1,2,1,3,
@@ -81,7 +83,7 @@ namespace TablutBackend.Models
             totalscore += CalcTotalWeight(KING_WEIGHTS, kingpos);
 
             //amount of ways for a king to the corners * 16.
-            totalscore += CalcWaysToCorner(board | other.board, kingpos) * 16;
+            totalscore += CalcWaysToCorner(board | other.board, kingpos) * 32;
 
             //danger on king - minus amount of blacks & res. around him * 8.
             totalscore -= KingDanger(bpieces, kingpos) * 8;

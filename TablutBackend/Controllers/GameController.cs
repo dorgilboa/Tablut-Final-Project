@@ -18,24 +18,17 @@ namespace TablutBackend.Controllers
             return GameDAL.CreateGame();
         }
 
-        //public long Get(string color)
-        //{
-        //    long id = GameDAL.CreateGame();
-        //    //switch on color to set computer turn...
-        //    return id;
-        //}
-
-        //// POST api/<controller> responsible for the AI turn by color that he gets... optional turn number delivered.
-        //// returns list of two numbers -> from and to, or 100 / 101 if match ended.
+        // POST api/<controller> responsible for the AI turn by color that he gets... optional turn number delivered.
+        // returns list of two (or more) numbers -> from and to, captures positions or 102 / 101 if match ended.
         public List<int> Post([FromBody] dynamic data)
         {
             return GameDAL.SetAITurn((long)data.id, (string)data.color);
         }
 
-        // PUT api/<controller>/5
+        // PUT api/<controller>/id responsible for managing client's turn request and updating according to given data.
+        // returns list of captures positions.
         public List<int> Put(long id, [FromBody] dynamic data)
         {
-            //data = JObject.Parse(data);
             return GameDAL.SetTurn(id, (int)data.from, (int)data.to, (string)data.color);
         }
     }

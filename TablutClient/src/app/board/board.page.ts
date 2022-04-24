@@ -47,7 +47,6 @@ export class BoardPage implements OnInit {
     this.finished = false;
     this.initBoard();
     this.rts.sendGetRequest('Game').subscribe((data: any)=>{
-      // console.log(data);
       this.gameID = data;
       switch(color){
       case "black":

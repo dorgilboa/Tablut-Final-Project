@@ -136,14 +136,25 @@ namespace TablutBackend.Models
             return res;
         }
 
+        /// <summary>
+        /// Creates and returns a new bitset mask with only one bit set on,
+        /// according to the function's parameter.
+        /// </summary>
+        /// <param name="pos">The position on bitset board to turn on the bit.</param>
+        /// <returns>a new bitset mask with only one bit set on</returns>
         public BitSet MaskOn(int pos)
         {
-            //return (pos > 64) ? new BitSet(0, (ulong)(1 << (pos - 64))) : new BitSet((ulong)(1 << pos), 0);
             if (pos != 0)
                 return new BitSet(1, 0) << (pos-1);
             return new BitSet(0, 0);
         }
 
+        /// <summary>
+        /// Sets mask with only one bit on by calling MaskOn(pos), and checks if
+        /// there is a bit on in given position.
+        /// </summary>
+        /// <param name="pos">The position of a bit in bitset board to check if it's on.</param>
+        /// <returns>true if the bit in the given position is on, otherwise false</returns>
         public bool IsOn(int pos)
         {
             BitSet mask = MaskOn(pos);
@@ -157,6 +168,10 @@ namespace TablutBackend.Models
         }
 
 
+        /// <summary>
+        /// Gets the position of the first bit that sets on in the board.
+        /// </summary>
+        /// <returns>position of the first bit that sets on in the board.</returns>
         public int GetFirstOn()
         {
             BitSet cloned = (BitSet)this.Clone();
@@ -178,6 +193,9 @@ namespace TablutBackend.Models
             return JsonConvert.SerializeObject(this);
         }
 
+        /// <summary>
+        /// shows the board in debug.output window.
+        /// </summary>
         public void Print()
         {
             for (int i = 1; i < 82; i++)
