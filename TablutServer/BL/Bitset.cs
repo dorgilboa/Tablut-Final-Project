@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace TablutServer
 {
-    internal class BitSet
+    internal class BitSet : ICloneable
     {
         public ulong low { get; set; }
         public ulong high { get; set; }
@@ -28,16 +28,16 @@ namespace TablutServer
             BitSet res = new BitSet(bs.low, bs.high);
             for (int i = 0; i < count; i++)
             {
-                if ((bs.low & ((ulong)1 << 31)) != 0)
-                    res.high |= 1;
-                res.low = bs.low << count;
                 res.high <<= 1;
+                if ((res.low & ((ulong)1 << 63)) != 0)
+                    res.high |= 1;
+                res.low <<= 1;
             }
             return res;
         }
 
         /// <summary>
-        /// Bitwise 'shift-right' (<<) implementation on two-part bitset 
+        /// Bitwise 'shift-right' (>>) implementation on two-part bitset 
         /// varriable, works first on the low part then on high.
         /// </summary>
         /// <param name="bs">The Bitset-type operand.</param>
@@ -48,10 +48,10 @@ namespace TablutServer
             BitSet res = new BitSet(bs.low, bs.high);
             for (int i = 0; i < count; i++)
             {
-                if ((bs.low & ((ulong)1 << 31)) != 0)
-                    res.high |= 1;
-                res.low = bs.low << count;
-                res.high <<= 1;
+                res.low >>= 1;
+                if ((res.high & (ulong)1) != 0)
+                    res.low |= ((ulong)1 << 63);
+                res.high >>= 1;
             }
             return res;
         }
@@ -114,6 +114,23 @@ namespace TablutServer
             res.low = ~res.low;
             res.high = ~res.high;
             return res;
+        }
+
+        public BitSet MaskOn(int pos)
+        {
+            return (pos > 63) ? new BitSet(0, (ulong)(1 << (pos - 63))) : new BitSet((ulong)(1 << pos), 0);
+        }
+
+        public bool IsOn(int pos)
+        {
+            BitSet mask = MaskOn(pos);
+            return (mask == (this & mask));
+        }
+
+
+        public object Clone()
+        {
+            return new BitSet(low, high);
         }
     }
 }

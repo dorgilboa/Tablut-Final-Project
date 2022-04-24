@@ -12,7 +12,7 @@ const routes: Routes = [
   },
   {
     path: '',
-    redirectTo: 'board',
+    redirectTo: 'home',
     pathMatch: 'full'
   },
 ];

@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.32106.194
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TablutBackend", "TablutBackend.csproj", "{AC05ED42-F586-4EFD-B235-1F44D01B1C3D}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{AC05ED42-F586-4EFD-B235-1F44D01B1C3D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AC05ED42-F586-4EFD-B235-1F44D01B1C3D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AC05ED42-F586-4EFD-B235-1F44D01B1C3D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AC05ED42-F586-4EFD-B235-1F44D01B1C3D}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {E2EACFBB-D713-4B5D-B399-8BC4D01134F3}
+	EndGlobalSection
+EndGlobal

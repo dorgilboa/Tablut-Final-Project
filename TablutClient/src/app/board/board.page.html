@@ -5,7 +5,8 @@
 </ion-header>
 
 <ion-content class="ion-padding">
-  <ion-text>{{this.turn}}</ion-text>
+  <ion-text>{{this.turn}} <div *ngIf="this.turn == this.aiplayer" class="lds-ellipsis"><div></div><div></div><div></div><div></div></div> </ion-text>
+
   <ion-grid *ngIf="showbrd">
     <ion-row *ngFor="let row of tablutGrid; let r = index;">
 
@@ -13,7 +14,7 @@
         [ngClass]="{'highlight-box': calcHL(r,c), 'goto-box': checkSteps(r,c)} "
         *ngFor="let col of row; let c = index;">
         <img src="{{getImageOnIndex(col, r, c)}}"
-          (click)="restrictMoment(col,r,c) ? $event.stopPropagation() : selectPiece(col, r, c)" alt="no-img"
+          (click)="restrictMovement(col,r,c) ? $event.stopPropagation() : selectPiece(col, r, c)" alt="no-img"
           (error)="errorHandler($event, r ,c)">
       </ion-col>
 

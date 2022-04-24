@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.32106.194
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TablutServer", "TablutServer.csproj", "{0C258A2C-EE6E-48AD-B3EF-C202FD0FC6A3}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TablutServer", "TablutServer.csproj", "{0C258A2C-EE6E-48AD-B3EF-C202FD0FC6A3}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

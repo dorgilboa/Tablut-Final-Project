@@ -1,7 +1,10 @@
 import { Component, OnInit } from '@angular/core';
+import { ActivatedRoute, Router } from '@angular/router';
 import { Grid } from '../models/grid';
 import { BLACK_PIECE, WHITE_KING, WHITE_PIECE } from '../models/pieces';
 import { PieceInterface } from '../models/pieces-interface';
+import { RestTablutService } from '../rest-tablut.service';
+
 
 @Component({
   selector: 'app-board',
@@ -10,6 +13,9 @@ import { PieceInterface } from '../models/pieces-interface';
 })
 export class BoardPage implements OnInit {
 
+  gameID;
+  aiplayer;
+  finished;
   turn = 'white';
   row_i = -1;
   col_i = -1;
@@ -20,17 +26,69 @@ export class BoardPage implements OnInit {
   readonly SIZE = 9;
   readonly MIDDLE = Math.floor(this.SIZE/2);
 
-  constructor() { }
+  constructor(route:ActivatedRoute, private rts : RestTablutService, private router: Router) {
+    // route.paramMap.subscribe(data => {
+
+      let color = router.getCurrentNavigation().finalUrl.queryParamMap.get('compColor')
+      console.log(color);
+      this.initGame(color);
+
+
+
+    // });
+   }
 
   ngOnInit() {
-    this.initBoard();
   }
 
+
+
+  async initGame(color){
+    this.finished = false;
+    this.initBoard();
+    this.rts.sendGetRequest('Game').subscribe((data: any)=>{
+      // console.log(data);
+      this.gameID = data;
+      switch(color){
+      case "black":
+        this.aiplayer = "black";
+        break;
+      case "white":
+        this.aiplayer = "white";
+        this.playAiTurn();
+        break;
+      default:
+        this.aiplayer = "none";
+        break;
+      }
+    });
+
+  }
+
+  // async getGameID(){
+  //   this.rts.sendGetRequest('Game').subscribe((data: any)=>{
+  //     // console.log(data);
+  //     // this.gameID = data;
+  //     return data;
+  //   });
+  // }
+
+
   async initBoard(){
+    this.turn = 'white';
     this.tablutGrid = Grid.clearBoard;
+    await this.clearBoard();
     await this.initWhites();
     await this.initBlacks();
     this.showbrd = true;
+  }
+
+  clearBoard(){
+    for(let i = 0; i < this.SIZE; i++){
+      for (let j = 0; j < this.SIZE; j++){
+        this.tablutGrid[i][j] = null;
+      }
+    }
   }
 
   initWhites(){
@@ -85,20 +143,23 @@ export class BoardPage implements OnInit {
     this.tablutGrid[this.MIDDLE][this.SIZE-2].colIndex = this.SIZE-2;
   }
 
-  restrictMoment(col: PieceInterface | null, r, c) {
-    console.log(col, r, c);
-    // Blocks entire team based on Turns
+  restrictMovement(col: PieceInterface | null, r, c) {
+    // Blocks entire grid while waiting for computer's respond.
+    if (this.aiplayer === this.turn){
+      return true;
+    }
+    // Blocks entire team based on Turns - first click of game.
     if (!this.selectedPiece) {
       if (col && (col.team === this.turn)) {
         return false;
       }
       return true;
     }
-    // Allows to select any Piece only from selected team.
+    // Allows to select any Piece only from selected team. - first click in turn.
     if (this.selectedPiece && col && (col.team === this.selectedPiece.team)) {
       return false;
     }
-    // Blocks all steps except possible paths.
+    // Blocks all steps except possible paths. - second click in turn.
     if (this.col_i !== -1 && this.row_i !== -1) {
       for (let count = 0; count < this.steps.length; count++) {
         if ((r === this.steps[count].r) && (c === this.steps[count].c)) {
@@ -136,38 +197,67 @@ export class BoardPage implements OnInit {
 
   // On select of Piece
   selectPiece(col: PieceInterface | null, r, c) {
-    console.log(this.tablutGrid);
+    console.log("selectpiece")
     this.steps = [];
     if (this.col_i !== -1 && this.row_i !== -1) {
       if (col && this.selectedPiece && col.team === this.selectedPiece.team) {
         this.selectedPiece = col; this.col_i = c; this.row_i = r;
         this.checkPieceConditions(col, r, c);
       } else {
+        // after moving the piece...
+        let move = {
+                    from: this.row_i*this.SIZE + this.col_i+1,
+                    to: r*this.SIZE+c+1,
+                    color: this.turn};
+        // takes care of capturing response...
+        this.rts.sendPutRequest("Game", this.gameID, move).subscribe((data: any)=>{
+          console.log(data);
+          this.dataHandler(data);
 
-        // Checks the winner of the game.
-        if (this.tablutGrid[r][c] && this.tablutGrid[r][c].name === 'KING') {
-          const winnerTeam = this.selectedPiece.team;
-          alert(winnerTeam + ' player wins.');
-          return;
-        }
+          this.tablutGrid[this.row_i][this.col_i] = null;
+          this.tablutGrid[r][c] = this.selectedPiece; this.col_i = -1; this.row_i = -1;
+          this.steps = [];
+          this.turn = this.turn === 'white' ? 'black' : 'white';
+          this.selectedPiece = null;
 
-        this.tablutGrid[this.row_i][this.col_i] = null;
-        this.tablutGrid[r][c] = this.selectedPiece; this.col_i = -1; this.row_i = -1;
-        this.steps = [];
-        this.turn = this.turn === 'white' ? 'black' : 'white';
-        this.selectedPiece = null;
-
-        // // Evolve the soldier at end of the line.
-        // if (r === 0 && this.tablutGrid[r][c].name === 'SOLDIER' && this.tablutGrid[r][c].team === 'black') {
-        //   this.chooseSoldierEvolution('black', r, c);
-        // }
-        // if (r === 7 && this.tablutGrid[r][c].name === 'SOLDIER' && this.tablutGrid[r][c].team === 'white') {
-        //   this.chooseSoldierEvolution('white', r, c);
-        // }
+          // computer response...
+          if (!this.finished && this.aiplayer != "none"){
+            this.playAiTurn();
+          }
+        });
       }
     } else if (col) {
       this.selectedPiece = col; this.col_i = c; this.row_i = r;
       this.checkPieceConditions(col, r, c);
+    }
+  }
+
+  dataHandler(data:any){
+    if (typeof data === "string")
+      console.log(data);
+    else{
+      try{
+        if (data.length > 0){
+          data.forEach(element => {
+            if (element == 102){
+              this.finished = true;
+              alert("White Won.");
+              this.router.navigate(['/home']);
+            }
+            else if (element == 101){
+              this.finished = true;
+              alert("Black Won.");
+              this.router.navigate(['/home']);
+            }
+            // capturing...
+            let row = Math.floor((element -1) / 9);
+            let col = element % 9 - 1;
+            this.tablutGrid[row][col] = null;
+          });
+        }
+      } catch (error){
+        console.error();
+      }
     }
   }
 
@@ -195,4 +285,33 @@ export class BoardPage implements OnInit {
       this.steps.push({ r, c });
     }
   }
+
+  playAiTurn(){
+    let data = {
+      id : this.gameID,
+      color : this.aiplayer
+    };
+    this.rts.sendPostRequest("Game", data).subscribe((respond: any)=>{
+      console.log(respond);
+      this.aiDataHandler(respond);
+    });
+  }
+
+
+  aiDataHandler(data:any){
+    let rowf = Math.floor((data[0] - 1) / 9);
+    let colf = data[0] % 9 - 1;
+    let rowt = Math.floor((data[1] - 1) / 9);
+    let colt = data[1] % 9 - 1;
+    // moving...
+    this.tablutGrid[rowt][colt] = this.tablutGrid[rowf][colf];
+    this.tablutGrid[rowf][colf] = null;
+    // capturing...
+    this.dataHandler(data.slice(2));
+
+    this.turn = this.turn === 'white' ? 'black' : 'white';
+  }
+
+
 }
+

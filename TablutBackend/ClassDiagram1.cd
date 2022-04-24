@@ -1,0 +1,79 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ClassDiagram MajorVersion="1" MinorVersion="1">
+  <Class Name="TablutBackend.Models.BitSet" BaseTypeListCollapsed="true">
+    <Position X="1.75" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAEAAAAAAAAAEgAAKCAIAAQIABIACAgAAAAAEABA=</HashCode>
+      <FileName>Models\BitSet.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" Collapsed="true" />
+  </Class>
+  <Class Name="TablutBackend.Models.BlackBoard">
+    <Position X="3.75" Y="5.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAACAAAAAAAAAAAAAAAAAAAAAAQAAAAIAAAAAAAABA=</HashCode>
+      <FileName>Models\BlackBoard.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="TablutBackend.Models.Board">
+    <Position X="4.75" Y="0.5" Width="1.75" />
+    <TypeIdentifier>
+      <HashCode>AAABCEAAAIAAAAAEgAAAAAAAgAIQAIAAIAQAAAEAgDA=</HashCode>
+      <FileName>Models\Board.cs</FileName>
+    </TypeIdentifier>
+    <ShowAsAssociation>
+      <Property Name="board" />
+      <Property Name="restrictions" />
+    </ShowAsAssociation>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="TablutBackend.Models.WhiteBoard">
+    <Position X="6" Y="5.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>ABARCAAAAAABAAIEAAAIAAAAAAAQAAAAIAAAAAEAABA=</HashCode>
+      <FileName>Models\WhiteBoard.cs</FileName>
+    </TypeIdentifier>
+    <ShowAsAssociation>
+      <Property Name="kingboard" />
+    </ShowAsAssociation>
+  </Class>
+  <Class Name="TablutBackend.Controllers.GameController">
+    <Position X="10.25" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAABAAAAAAAAACAAAAAAAAAAAAAAAAAg=</HashCode>
+      <FileName>Controllers\GameController.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="TablutBackend.Models.Move">
+    <Position X="6.75" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAIAAAAAAAAAAAAIAAgAAAABAAAAAAAAACAAAAA=</HashCode>
+      <FileName>Models\Move.cs</FileName>
+    </TypeIdentifier>
+    <ShowAsAssociation>
+      <Property Name="type" />
+    </ShowAsAssociation>
+  </Class>
+  <Class Name="TablutBackend.CacheTT">
+    <Position X="8.5" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>ACIAAAAAAIAAAABAAAAABAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>CacheTT.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="TablutBackend.DAL.GameDAL">
+    <Position X="8.5" Y="3.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAoKACAAAAAAAAAAAAACAAQQBAAAACAAAAAAAAAAAAA=</HashCode>
+      <FileName>DAL\GameDAL.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Enum Name="TablutBackend.Models.TTType">
+    <Position X="6.75" Y="3.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAgAAAAAAAAAAAAAAAIAAAAAAAAAAAAAAQA=</HashCode>
+      <FileName>Models\Move.cs</FileName>
+    </TypeIdentifier>
+  </Enum>
+  <Font Name="Segoe UI" Size="9" />
+</ClassDiagram>
