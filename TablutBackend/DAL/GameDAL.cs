@@ -3,6 +3,7 @@ using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Threading.Tasks;
 using TablutBackend.Models;
 using static TablutBackend.Models.TTType;
 
@@ -269,9 +270,11 @@ namespace TablutBackend.DAL
             Move best = new Move(0,0, (wturn && !opponent) || (!wturn && opponent));
 
             best.score = -HIGHEST_SCORE-1;
-            for (int i = 0; i < moves.Count; i++)
+            //for (int i = 0; i < moves.Count; i++)
+            //Parallel.ForEach(moves, move =>
+            foreach(Move move in moves)
             {
-                Move move = moves[i];
+                //Move move = moves[i];
                 copy_bb = (BlackBoard)bb.Clone();
                 copy_wb = (WhiteBoard)wb.Clone();
                 Move bestnextmove;
@@ -294,7 +297,7 @@ namespace TablutBackend.DAL
                         copy_wb.kingboard &= ~copy_wb.kingboard.MaskOn(kingpos);
                     copy_wb.board = (BitSet)o_board.Clone();
                 }
-                if (move.from == kingpos && (move.to % 9 == 0 || (move.to-1) % 9 == 0 || move.to <= 9 || move.to > 72))
+                if (move.from == kingpos && (move.to % 9 == 0 || (move.to - 1) % 9 == 0 || move.to <= 9 || move.to > 72))
                     Console.WriteLine("hi");
                 bestnextmove = AlphaBetaTT(copy_wb, copy_bb, depth - 1, -beta, -alpha, wturn, !opponent);
                 if (-bestnextmove.score > best.score)
