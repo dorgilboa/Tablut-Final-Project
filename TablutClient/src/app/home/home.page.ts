@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
 import { NavigationExtras, Router } from '@angular/router';
 
+/// routing component between human vs human oage and playing vs AI
 @Component({
   selector: 'app-home',
   templateUrl: 'home.page.html',
@@ -11,6 +12,7 @@ export class HomePage {
   constructor(private router: Router) {}
 
   start1v1(){
+    /// two human on same machine
     let navigationExtras: NavigationExtras = {
       queryParams: {
         compColor: "none"
@@ -20,6 +22,7 @@ export class HomePage {
   }
 
   start1vb(){
+    /// human vs black AI
     let navigationExtras: NavigationExtras = {
       queryParams: {
         compColor: "black"
@@ -29,6 +32,7 @@ export class HomePage {
   }
 
   start1vw(){
+    /// human vs white AI
     let navigationExtras: NavigationExtras = {
       queryParams: {
         compColor: "white"

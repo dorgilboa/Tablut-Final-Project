@@ -8,44 +8,39 @@ namespace TablutBackend.Models
     public class WhiteBoard : Board
     {
         private readonly string KING_TEMPLATE = "000000000000000000000000000000000000000010000000000000000000000000000000000000000";
-        // Weights for white pieces on board.
-        private readonly int[] WHITE_WEIGHTS = { 2,2,2,0,0,0,2,2,2,
-                                                  2,1,1,4,0,4,1,1,2,
-                                                  2,1,2,2,2,2,2,1,2,
-                                                  0,2,4,1,3,1,4,2,0,
-                                                  0,0,2,3,0,3,2,0,0,
-                                                  0,2,4,1,3,1,4,2,0,
-                                                  2,1,2,2,2,2,2,1,2,
-                                                  2,1,1,4,0,4,1,1,2,
-                                                  2,2,2,0,0,0,2,2,2};
-        // Weights for king piece's positions on board.
-        private readonly int[] KING_WEIGHTS = { 5,1,3,3,3,3,3,1,5,
-                                                  1,1,1,2,0,2,1,1,1,
-                                                  3,1,2,1,1,1,2,1,3,
-                                                  3,2,1,1,3,1,1,2,3,
-                                                  3,0,1,3,3,3,1,0,3,
-                                                  3,2,1,1,3,1,1,2,3,
-                                                  3,1,2,1,1,1,2,1,3,
-                                                  1,1,1,2,0,2,1,1,1,
-                                                  5,1,3,3,3,3,3,1,5};
         public BitSet kingboard { get; set; }
         public WhiteBoard() : base(true)
         {
             kingboard = new BitSet(KING_TEMPLATE);
         }
 
+        /// <summary>
+        /// Checks if the king has been selected in last move.
+        /// </summary>
+        /// <param name="pos"> Position (index on board) to check on if the king is also there. </param>
+        /// <returns> True / False if king was moved or not. </returns>
         public bool IsKingMoved(int pos)
         {
             return kingboard.MaskOn(pos).Equals(kingboard & kingboard.MaskOn(pos));
         }
 
+        /// <summary>
+        /// Responsible for the movement of the king on his own board. (Because
+        /// he is seperated from the regular white (bit)board.
+        /// </summary>
+        /// <param name="from"> Source position index the king moves from. </param>
+        /// <param name="to"> Dest. position index the king moves into. </param>
         public void KingMove(int from, int to)
         {
             kingboard &= ~kingboard.MaskOn(from);
             kingboard |= kingboard.MaskOn(to);
         }
 
-
+        /// <summary>
+        /// Check if the white player has won. gets no parameters yet other is
+        /// neccessary for black player.
+        /// </summary>
+        /// <returns> True / False if king is on one of the corner positions. </returns>
         public override bool Won(BitSet other = null)
         {
             BitSet check = ~(new BitSet(KING_TEMPLATE)) & restrictions;
@@ -54,11 +49,19 @@ namespace TablutBackend.Models
             return false;
         }
 
+        /// <summary>
+        /// Extract all moves can possibly be for white player by calling base method with wturn = true.
+        /// </summary>
         public override List<Move> GetAllMoves(Board other, bool wturn = false, BitSet merged = null)
         {
             return base.GetAllMoves(other, true, kingboard | board | other.board);
         }
 
+        /// <summary>
+        /// Extract all white pieces' indieces on board by calling base method, and adding the king's
+        /// index to the list.
+        /// </summary>
+        /// <returns> A list of integer that resembles all indexes of white pieces on board. </returns>
         public override List<int> GetAllPieces()
         {
             List<int> pieces = base.GetAllPieces();
@@ -66,36 +69,63 @@ namespace TablutBackend.Models
             return pieces;
         }
 
+        /// <summary>
+        /// pct. stands for percentage.
+        /// The main function for calculating the board's situation for a white player.
+        /// This function rely on few factors:
+        /// pct. of alive white players * 18 
+        /// pct. of captured black players * 14
+        /// Avg diff between white players' weights + king's weight on board up to 10 score, minus blacks avg score. times 2.
+        /// Amount of ways for a king to the corners * 20 - highly weighted score.
+        /// pct. of dangerous pieces around king - minus 32.
+        /// pct. of white pieces around him * 8.
+        /// depth's impact on score - We'd want to get same score in less depth into the tree.
+        /// </summary>
+        /// <param name="other"> Black Board. </param>
+        /// <param name="depth"> Depth of the board's situation in game-tree. </param>
+        /// <returns> The total score that has been affected from all these factors above. </returns>
         public override int Hueristic(Board other, int depth)
         {
             int kingpos = kingboard.GetFirstOn();
             int totalscore = 0;
             List<int> wpieces = base.GetAllPieces();
             List<int> bpieces = other.GetAllPieces();
-            //amount of white players on board * 4.
-            totalscore += wpieces.Count * 4;
+            //pct. of white players on board * 18 weight.
+            double whitepct = wpieces.Count / WHITE_PIECES;
+            totalscore += (int)(whitepct * 18);
 
-            //amount of captured black players * 1.
-            totalscore += (BLACK_PIECES - bpieces.Count);
+            //pct. of captured black players * 14 weight.
+            double blackcappct = (BLACK_PIECES - bpieces.Count) / BLACK_PIECES;
+            totalscore += (int)(blackcappct * 14);
 
-            //add calc by areas...
-            totalscore += CalcTotalWeight(WHITE_WEIGHTS, wpieces.ToArray()) / wpieces.Count;
-            totalscore += CalcTotalWeight(KING_WEIGHTS, kingpos);
+            //evaluate difference between average pieces weights per side * 2.
+            double weightscore = (CalcTotalWeight(WHITE_WEIGHTS, wpieces.ToArray()) / wpieces.Count) * 1.3;
+            weightscore += CalcTotalWeight(KING_WEIGHTS, kingpos) * 0.7;
+            weightscore -= (CalcTotalWeight(BLACK_WEIGHTS, bpieces.ToArray()) / bpieces.Count) * 2;
+            totalscore += (int)(weightscore * 2);
 
-            //amount of ways for a king to the corners * 16.
-            totalscore += CalcWaysToCorner(board | other.board, kingpos) * 32;
+            //amount of ways for a king to the corners * 20.
+            totalscore += CalcWaysToCorner(board | other.board, kingpos) * 20;
 
-            //danger on king - minus amount of blacks & res. around him * 8.
-            totalscore -= KingDanger(bpieces, kingpos) * 8;
+            //danger on king - minus percentage of danger to king * 32 weight.
+            double kingdangerpct = KingDanger(bpieces, kingpos) / PiecesToCaptureKing(kingpos);
+            totalscore -= (int)(kingdangerpct * 32);
 
-            //guards around king - amount of whites * 1.
-            totalscore += KingSafe(wpieces, kingpos);
+            //guards around king - pct. of whites of all around it * 8 weight.
+            double kingsafepct = KingSafe(wpieces, kingpos) / PIECES_AROUND_KING;
+            totalscore += (int)kingsafepct;
 
             totalscore -= (5 - depth);
 
             return totalscore;
         }
 
+        /// <summary>
+        /// Count the amount of ways the king has to the corners of the board.
+        /// </summary>
+        /// <param name="merged"> merged bit board of white and black pieces that might block the king in the way. </param>
+        /// <param name="kingpos"> The position of the king. </param>
+        /// <returns> amount of ways the king has to the corners of the board. </returns>
         public int CalcWaysToCorner(BitSet merged, int kingpos)
         {
             int curr = kingpos, ways = 0;
@@ -145,6 +175,10 @@ namespace TablutBackend.Models
             return ways;
         }
 
+        /// <summary>
+        /// Count the amount of Black / restriction pieces around king.
+        /// </summary>
+        /// <param name="danger_pieces"> The black pieces' indieces list. </param>
         public int KingDanger(List<int> danger_pieces, int kingpos)
         {
             danger_pieces.Concat(RES_PLACES);
@@ -160,6 +194,10 @@ namespace TablutBackend.Models
             return total;
         }
 
+        /// <summary>
+        /// Count the amount of white pieces around king.
+        /// </summary>
+        /// <param name="wpieces"> The white pieces' indieces list. </param>
         public int KingSafe(List<int> wpieces, int kingpos)
         {
             int total = 0;

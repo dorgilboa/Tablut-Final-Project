@@ -7,18 +7,18 @@ namespace TablutBackend.Models
 {
     public class BlackBoard : Board
     {
-        private readonly int[] BLACK_WEIGHTS = {    1,3,2,3,3,3,2,3,1,
-                                                    3,2,5,1,3,1,5,2,3,
-                                                    2,5,1,5,2,5,1,5,2,
-                                                    3,1,5,1,2,1,5,1,3,
-                                                    3,3,2,2,1,2,2,3,3,
-                                                    3,1,5,1,2,1,5,1,3,
-                                                    2,5,1,5,2,5,1,5,2,
-                                                    3,2,5,1,3,1,5,2,3,
-                                                    1,3,2,3,3,3,2,3,1 };
         public BlackBoard() : base(false)
         {}
 
+        /// <summary>
+        /// Checks if the king is surrounded by 4 non-white pieces that aim to capture him.
+        /// Works only if one of the pieces around him IS a part of the last move the black player
+        /// executed.
+        /// </summary>
+        /// <param name="kingpos"> The index of the king on board. </param>
+        /// <param name="lastMovePos"> The last position the black player moved one of his pieces
+        /// into. </param>
+        /// <returns></returns>
         public bool KingEaten(int kingpos, int lastMovePos)
         {
             // if king remained in center or near center - must be eaten from all 4 sides...
@@ -30,6 +30,10 @@ namespace TablutBackend.Models
             return false;
         }
 
+        /// <summary>
+        /// Check if the black player has won. gets the king bitset to check if there is no bit on.
+        /// </summary>
+        /// <returns> True / False if king was captured or not. </returns>
         public override bool Won(BitSet other = null)
         {
             if (other.Equals(new BitSet(0,0)))
@@ -37,6 +41,8 @@ namespace TablutBackend.Models
             return false;
         }
 
+        // merges all boards in order to call base function with correct merged boards that affect
+        // the black pieces' moves.
         public override List<Move> GetAllMoves(Board other, bool wturn = false, BitSet merged = null)
         {
             WhiteBoard white = other as WhiteBoard;
@@ -45,6 +51,20 @@ namespace TablutBackend.Models
             return base.GetAllMoves(other, false, board | white.board | white.kingboard);
         }
 
+        /// <summary>
+        /// The main function for calculating the board's situation for a black player.
+        /// This function rely on few factors:
+        /// pct. of alive black players * 20 
+        /// pct. of captured black players * 16
+        /// Avg diff between blacks avg weights * 2 up to 10 score, to white players' weights + king's weight on board. times 3.2.
+        /// Amount of ways for a king to the corners * -24 = unwanted result.
+        /// pct. of dangerous pieces around king * 32.
+        /// pct. of white pieces around him * -8.
+        /// depth's impact on score - We'd want to get same score in less depth into the tree.
+        /// </summary>
+        /// <param name="other"> White Board. </param>
+        /// <param name="depth"> Depth of the board's situation in game-tree. </param>
+        /// <returns> The total score that has been affected from all these factors above. </returns>
         public override int Hueristic(Board other, int depth)
         {
             WhiteBoard wb = other as WhiteBoard;
@@ -52,23 +72,30 @@ namespace TablutBackend.Models
             int totalscore = 0;
             List<int> bpieces = base.GetAllPieces();
             List<int> wpieces = other.GetAllPieces();
-            //amount of captured white players on board * 2.
-            totalscore += (WHITE_PIECES - wpieces.Count) * 2;
+            //pct. of black players on board * 20 weight.
+            double blackpct = bpieces.Count / BLACK_PIECES;
+            totalscore += (int)(blackpct * 20);
 
-            //amount of black players on board * 2.
-            totalscore += bpieces.Count * 2;
+            //pct. of captured white players * 16 weight.
+            double blackcappct = (BLACK_PIECES - bpieces.Count) / BLACK_PIECES;
+            totalscore += (int)(blackcappct * 16);
 
-            //add calc by areas...
-            totalscore += CalcTotalWeight(BLACK_WEIGHTS, bpieces.ToArray()) / bpieces.Count * 2;
+            //evaluate difference between average pieces weights per side * 3.2 weight.
+            double weightscore = (CalcTotalWeight(BLACK_WEIGHTS, bpieces.ToArray()) / bpieces.Count) * 2;
+            weightscore -= (CalcTotalWeight(WHITE_WEIGHTS, wpieces.ToArray()) / wpieces.Count) * 1.3;
+            weightscore -= wb.CalcTotalWeight(KING_WEIGHTS, kingpos) * 0.7;
+            totalscore += (int)(weightscore * 3.2);
 
-            //minus amount of ways for a king to the corners * 16.
-            totalscore -= wb.CalcWaysToCorner(board | other.board, kingpos) * 16;
+            //amount of ways for a king to the corners * -24 weight.
+            totalscore -= wb.CalcWaysToCorner(board | other.board, kingpos) * 24;
 
-            //danger on king - amount of blacks & res. around him * 8.
-            totalscore += wb.KingDanger(bpieces, kingpos) * 8;
+            //danger on king - percentage of danger to king * 32 weight.
+            double kingdangerpct = wb.KingDanger(bpieces, kingpos) / PiecesToCaptureKing(kingpos);
+            totalscore += (int)(kingdangerpct * 32);
 
-            //guards around king - amount of whites * 1.
-            totalscore -= wb.KingSafe(wpieces, kingpos);
+            //guards around king - pct. of whites of all around it * -8 weight.
+            double kingsafepct = wb.KingSafe(wpieces, kingpos) / PIECES_AROUND_KING;
+            totalscore -= (int)kingsafepct;
 
             totalscore -= (5 - depth);
 

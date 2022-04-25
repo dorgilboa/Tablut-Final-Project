@@ -5,7 +5,10 @@ import { BLACK_PIECE, WHITE_KING, WHITE_PIECE } from '../models/pieces';
 import { PieceInterface } from '../models/pieces-interface';
 import { RestTablutService } from '../rest-tablut.service';
 
-
+/*
+main component - board game inclodes logic of available moves for human player
+and the selected moves for both human and AI players
+*/
 @Component({
   selector: 'app-board',
   templateUrl: './board.page.html',
@@ -27,15 +30,11 @@ export class BoardPage implements OnInit {
   readonly MIDDLE = Math.floor(this.SIZE/2);
 
   constructor(route:ActivatedRoute, private rts : RestTablutService, private router: Router) {
-    // route.paramMap.subscribe(data => {
-
+      /// set AI color via routing
       let color = router.getCurrentNavigation().finalUrl.queryParamMap.get('compColor')
       console.log(color);
       this.initGame(color);
 
-
-
-    // });
    }
 
   ngOnInit() {
@@ -64,16 +63,9 @@ export class BoardPage implements OnInit {
 
   }
 
-  // async getGameID(){
-  //   this.rts.sendGetRequest('Game').subscribe((data: any)=>{
-  //     // console.log(data);
-  //     // this.gameID = data;
-  //     return data;
-  //   });
-  // }
-
 
   async initBoard(){
+    /// first player is white - human or AI
     this.turn = 'white';
     this.tablutGrid = Grid.clearBoard;
     await this.clearBoard();
@@ -83,6 +75,7 @@ export class BoardPage implements OnInit {
   }
 
   clearBoard(){
+    /// clear for games following the first
     for(let i = 0; i < this.SIZE; i++){
       for (let j = 0; j < this.SIZE; j++){
         this.tablutGrid[i][j] = null;
@@ -171,10 +164,12 @@ export class BoardPage implements OnInit {
   }
 
   calcHL(r, c) {
+    /// for highlighting available row and colomn moves
     return (r === this.row_i && c === this.col_i);
   }
 
   checkSteps(r, c) {
+    /// for highlighting available row and colomn moves
     for (let count = 0; count < this.steps.length; count++) {
       if (r === this.steps[count].r && c === this.steps[count].c) { return true; }
     }
@@ -184,6 +179,7 @@ export class BoardPage implements OnInit {
   // Default Image
   errorHandler(event, r, c) {
     console.log(r, c);
+    // empty cell image on err
     event.target.src = 'assets/pieces/default.png';
   }
 
@@ -232,6 +228,7 @@ export class BoardPage implements OnInit {
   }
 
   dataHandler(data:any){
+    /// handle respnse from server
     if (typeof data === "string")
       console.log(data);
     else{
@@ -261,12 +258,11 @@ export class BoardPage implements OnInit {
   }
 
   async checkPieceConditions(col: PieceInterface | null, r, c) {
-    console.log(col);
+    /// find available steps
     for (let count = r + 1; count < this.SIZE; count++) { if (await this.pushOnIndividualCondition(col, count, c)) { break; } }
     for (let count = r - 1; count >= 0; count--) { if (await this.pushOnIndividualCondition(col, count, c)) { break; } }
     for (let count = c + 1; count < this.SIZE; count++) { if (await this.pushOnIndividualCondition(col, r, count)) { break; } }
     for (let count = c - 1; count >= 0; count--) { if (await this.pushOnIndividualCondition(col, r, count)) { break; } }
-    console.log(this.steps);
   }
 
   pushOnIndividualCondition(col: PieceInterface | null, r, c) {
@@ -274,7 +270,6 @@ export class BoardPage implements OnInit {
       this.steps.push({ r, c });
       return false;
     } else {
-      // this.breakCondition(col, r, c);
       return true;
     }
   }

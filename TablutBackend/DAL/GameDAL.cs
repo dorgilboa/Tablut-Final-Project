@@ -325,7 +325,7 @@ namespace TablutBackend.DAL
                 if (won)
                     value = HIGHEST_SCORE-1-(5-depth);
                 else
-                    value = (wturn && !opponent) || (!wturn && opponent) ? wb.Hueristic(bb, depth) : bb.Hueristic(wb, depth);
+                    value = !((wturn && !opponent) || (!wturn && opponent)) ? wb.Hueristic(bb, depth) : bb.Hueristic(wb, depth);
                 Move ret = new Move(0, 0, (wturn && !opponent) || (!wturn && opponent));
                 ret.score = value;
                 StoreMoveTT(key, ret, alpha, beta);

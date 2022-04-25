@@ -2,6 +2,9 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 
 
+/**
+ * server module accesses the crud  rest api providede by the web-api
+ */
 @Injectable({
   providedIn: 'root'
 })
@@ -19,13 +22,6 @@ export class RestTablutService {
   }
 
   public sendPutRequest(api,id, move: any){
-
-    // const httpOptions = {
-    // headers: new HttpHeaders({
-    //   'Content-Type':  'application/json',
-    //   // Authorization: 'my-auth-token'
-    //   })
-    // };
     return this.httpClient.put<any>(this.REST_API_SERVER+"/"+api + "/" + id, move);
   }
 }
