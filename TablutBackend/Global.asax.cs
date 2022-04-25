@@ -24,7 +24,7 @@ namespace TablutBackend
 
         protected void Application_BeginRequest()
         {
-            HttpContext.Current.Response.AddHeader("Access-Control-Allow-Origin", "*");
+            //HttpContext.Current.Response.AddHeader("Access-Control-Allow-Origin", "*");
             HttpContext.Current.Response.AddHeader("Access-Control-Allow-Methods", "POST, GET, OPTIONS, DELETE, PUT");
             HttpContext.Current.Response.AddHeader("Access-Control-Allow-Headers", "append,delete,entries,foreach,get,has,keys,set,values,Authorization");
         }

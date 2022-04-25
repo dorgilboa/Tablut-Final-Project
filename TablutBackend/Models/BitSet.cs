@@ -179,7 +179,7 @@ namespace TablutBackend.Models
             while (pos <= 81)
                 if (!(cloned & MaskOn(++pos)).Equals(MaskOn(0)))
                     return pos;
-            return pos;
+            return 0;
         }
 
 

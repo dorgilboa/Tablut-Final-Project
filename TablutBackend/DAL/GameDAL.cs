@@ -12,7 +12,7 @@ namespace TablutBackend.DAL
     
     public class GameDAL
     {
-        const int DEPTH = 3;
+        const int DEPTH = 4;
         const int BLACK_WIN = 101;
         const int WHITE_WIN = 102;
         const int HIGHEST_SCORE = 1000;
@@ -74,7 +74,6 @@ namespace TablutBackend.DAL
                     captures = b.SetCaptures(to, ref o_board, kingpos, false);
                     if (captures.Contains(kingpos))
                         w.kingboard &= ~w.kingboard.MaskOn(kingpos);
-                    w.kingboard.Print();
                     w.board = (BitSet)o_board.Clone();
                     //check for win
                     if (b.Won(w.kingboard))
@@ -146,6 +145,7 @@ namespace TablutBackend.DAL
             List<int> message = new List<int>(3);
             BitSet o_board;
             int kingpos = w.kingboard.GetFirstOn();
+            List<int> captures = null;
             // message is built from -> from, to, 
             switch (color)
             {
@@ -155,7 +155,7 @@ namespace TablutBackend.DAL
                     o_board = w.board;
                     message.Add(best.from);
                     message.Add(best.to);
-                    List<int> captures = b.SetCaptures(best.to, ref o_board, kingpos, false);
+                    captures = b.SetCaptures(best.to, ref o_board, kingpos, false);
                     if (captures.Count == 1 && captures.Contains(kingpos))
                         w.kingboard &= ~w.kingboard.MaskOn(kingpos);
                     if (b.Won(w.kingboard))
@@ -163,10 +163,6 @@ namespace TablutBackend.DAL
                         message.Add(BLACK_WIN);
                         DeleteGame(conn, id);
                         return message;
-                    }
-                    foreach (int capt in captures)
-                    {
-                        message.Add(capt);
                     }
                     w.board = (BitSet)o_board.Clone();
                     break;
@@ -188,16 +184,14 @@ namespace TablutBackend.DAL
                     }
                     w.board |= w.kingboard; // merge to check if king was involved in capturing.
                     captures = w.SetCaptures(best.to, ref o_board, kingpos, true);
-                    foreach (int capt in captures)
-                    {
-                        message.Add(capt);
-                    }
+                    message.AddRange(captures);
                     b.board = (BitSet)o_board.Clone();
                     w.board &= ~w.kingboard; // turn off the king bit that we added.
                     break;
                 default:
                     break;
             }
+            message.AddRange(captures);
 
             string cmndString = string.Format("update games set wb='{0}', bb='{1}', kb='{2}' where id = {3}", w.board, b.board, w.kingboard, id);
             MySqlCommand cmnd = new MySqlCommand(cmndString, conn);
@@ -296,7 +290,7 @@ namespace TablutBackend.DAL
         /// <param name="bb"> BlackBoard object. Needed for the evaluation of the board's score and 
         /// running simulated moves during the recursives. </param>
         /// <param name="depth"> The required Game-Tree depth I want the function to dive into.
-        /// Will be initialized as 3 usually. </param>
+        /// Will be initialized as 4 usually. </param>
         /// <param name="alpha"> The lower block. Responsible for the current ai player's move selection. </param>
         /// <param name="beta"> The higher block. responsible for the opposnent's futuristic move selection. </param>
         /// <param name="wturn"> Boolean that resembles whether the current ai player is the white side or not. </param>
@@ -319,13 +313,13 @@ namespace TablutBackend.DAL
                 if (ttmove.type == EXACT || alpha >= beta)
                     return ttmove;
             }
-            bool won = ((wturn && wb.Won()) || (!wturn && bb.Won(wb.kingboard)));
+            bool won = (wb.Won() || bb.Won(wb.kingboard));
             if ((depth == 0 || won))
             {
                 if (won)
                     value = HIGHEST_SCORE-1-(5-depth);
                 else
-                    value = !((wturn && !opponent) || (!wturn && opponent)) ? wb.Hueristic(bb, depth) : bb.Hueristic(wb, depth);
+                    value = wturn ? wb.Hueristic(bb, depth) : bb.Hueristic(wb, depth);
                 Move ret = new Move(0, 0, (wturn && !opponent) || (!wturn && opponent));
                 ret.score = value;
                 StoreMoveTT(key, ret, alpha, beta);
@@ -336,7 +330,7 @@ namespace TablutBackend.DAL
             Move best = new Move(0,0, (wturn && !opponent) || (!wturn && opponent));
 
             best.score = -HIGHEST_SCORE-1;
-            foreach(Move move in moves)
+            foreach (Move move in moves)
             {
                 copy_bb = (BlackBoard)bb.Clone();
                 copy_wb = (WhiteBoard)wb.Clone();

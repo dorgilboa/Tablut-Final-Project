@@ -9,7 +9,7 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
   providedIn: 'root'
 })
 export class RestTablutService {
-  private REST_API_SERVER = "https://localhost:44386/api/";
+  private REST_API_SERVER = "https://localhost:44386/api";
 
   constructor(private httpClient: HttpClient) { }
 
